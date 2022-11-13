@@ -19,11 +19,14 @@ ID = 'ID'
 COMMA = ','
 DOT = '.'
 
-FOR = 'FOR'
-IF = 'IF'
-ELSE = 'ELSE'
-LET = 'LET'
-VAR = 'VAR'
+COMMENT = '//'
+
+WHILE = 'while'
+IF = 'if'
+ELSE = 'else'
+ELSEIF = 'else if'
+LET = 'let'
+VAR = 'var'
 
 EOF = 'EOF'
 
