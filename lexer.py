@@ -1,217 +1,258 @@
-import toen
-#Int,Float,String;
-INTEGER = 'INTEGER'
-FLOAT = 'FLOAT'
-STRING = 'STRING'
+###############################################################################
+#                                                                             #
+#  LEXER                                                                      #
+#                                                                             #
+###############################################################################
 
-PLUS = 'PLUS'
-MINUS = 'MINUS'
-MULTIPLY = 'MULTIPLY'
-DIVIDE = 'DIVIDE'
-MODULO = 'MODULO'
+# Token types
+#
+# EOF (end-of-file) token is used to indicate that
+# there is no more input left for lexical analysis
+INTEGER       = 'INTEGER'
+REAL          = 'REAL'
+INTEGER_CONST = 'INTEGER_CONST'
+REAL_CONST    = 'REAL_CONST'
+PLUS          = 'PLUS'
+MINUS         = 'MINUS'
+MUL           = 'MUL'
+INTEGER_DIV   = 'INTEGER_DIV'
+FLOAT_DIV     = 'FLOAT_DIV'
+LPAREN        = 'LPAREN'
+RPAREN        = 'RPAREN'
+ID            = 'ID'
+ASSIGN        = 'ASSIGN'
+BEGIN         = 'BEGIN'
+END           = 'END'
+SEMI          = 'SEMI'
+DOT           = 'DOT'
+PROGRAM       = 'PROGRAM'
+VAR           = 'VAR'
+COLON         = 'COLON'
+COMMA         = 'COMMA'
+PROCEDURE     = 'PROCEDURE'
+EOF           = 'EOF'
+#NEW
+SYMBOL_SLASH  ='SYMBOL_SLASH'
+LET           ='LET'
+IF            ='IF'
+ELSE          ='ELSE'
+WHILE         ='WHILE'
+SWITCH        ='SWITCH'
+CASE          ='CASE'
+STRING        ='STRING'
+STRING_       ='STRING_'
+LCURL         ='LCURL'
+RCURL         ='RCURL'
+class Token(object):
+    def __init__(self, type, value):
+        self.type = type
+        self.value = value
 
-LPAREN = '('
-RPAREN = ')'
-LCURL = '{'
-RCURL = '}'
+    def __str__(self):
+        """String representation of the class instance.
+        Examples:
+            Token(INTEGER, 3)
+            Token(PLUS, '+')
+            Token(MUL, '*')
+        """
+        return 'Token({type}, {value})'.format(
+            type=self.type,
+            value=repr(self.value)
+        )
 
-EQUAL = '='
-SEMICOLON    = ';'
-ID = 'ID'
-COMMA = ','
-DOT = '.'
+    def __repr__(self):
+        return self.__str__()
 
-COMMENT = '//'
 
-WHILE = 'while'
-IF = 'if'
-ELSE = 'else'
-ELSEIF = 'else if'
-LET = 'let'
-VAR = 'var'
-
-EOF = 'EOF'
-
-#Reserved Keywords: 
 RESERVED_KEYWORDS = {
-    'let': toen.Token(LET, 'let'),
-    'var': toen.Token(VAR,'var'),
-    'if': toen.Token(IF, 'if'),
-    'else': toen.Token(ELSE, 'else'),
-    'else if': toen.Token(ELSEIF,'else if'),
-    'while': toen.Token(WHILE, 'while'),
+    'PROGRAM': Token('PROGRAM', 'PROGRAM'),
+    'VAR': Token('VAR', 'VAR'),
+    'DIV': Token('INTEGER_DIV', 'DIV'),
+    'INTEGER': Token('INTEGER', 'INTEGER'),
+    'REAL': Token('REAL', 'REAL'),
+    'BEGIN': Token('BEGIN', 'BEGIN'),
+    'END': Token('END', 'END'),
+    'PROCEDURE': Token('PROCEDURE', 'PROCEDURE'),
+    #NEW
+    'LET': Token('LET','LET'),
+    'IF': Token('IF','IF'),
+    'ELSE': Token('ELSE','ELSE'),
+    'WHILE': Token('WHILE','WHILE'),
+    'SWITCH': Token('SWITCH','SWITCH'),
+    'CASE': Token('CASE','CASE'),
+    'STRING':Token('STRING','STRING')
 }
 
 class Lexer(object):
     def __init__(self, text):
-        # text input is stored in a variable called self.text: "3 + 8"
+        # client string input, e.g. "4 + 2 * 3 - 6 / 2"
         self.text = text
-        # index/position where the lexer is currently looking at
+        # self.pos is an index into self.text
         self.pos = 0
-        # line of the text
-        self.line = 1
-        #stores the current token the lexer is looking at
-        self.currentToken = None
-        #stores the current character the lexer is looking at
-        self.currentChar = self.text[self.pos]
+        self.current_char = self.text[self.pos]
 
     def error(self):
-        raise Exception('Syntax Error')
+        raise Exception('Invalid character')
 
     def advance(self):
-        # advance the pos variable to go to the next char
-        self.pos = self.pos + 1
-
-        if self.pos >= len(self.text) :
-            self.currentChar = None
+        """Advance the `pos` pointer and set the `current_char` variable."""
+        self.pos += 1
+        if self.pos > len(self.text) - 1:
+            self.current_char = None  # Indicates end of input
         else:
-            self.currentChar = self.text[self.pos]
+            self.current_char = self.text[self.pos]
 
-    def peek(self, index):
-        peekPos = self.pos + index
-        if peekPos > len(self.text) - 1:
+    def peek(self):
+        peek_pos = self.pos + 1
+        if peek_pos > len(self.text) - 1:
             return None
         else:
-            return self.text[peekPos]
+            return self.text[peek_pos]
 
-    def ignoreWhiteSpaces(self):
-        # ignores white spaces
-        while self.currentChar is not None and self.currentChar.isspace():
-            if self.currentChar == '\n':
-                self.line += 1
+    def skip_whitespace(self):
+        while self.current_char is not None and self.current_char.isspace():
             self.advance()
+#SKIPS SINGLE LINE COMMENT USING //
+    def skip_comment(self):
+        while self.current_char !='\n':
+            self.advance()
+        self.advance() 
+#SKIPS MULTI LINE COMMENT USING /*
+    def skip_multi_line_comment(self):
+        while self.current_char != '*' and self.current_char!=None:
+            self.advance()
+        if(self.current_char==None):
+            self.error() 
+        else:
+            self.advance() # skipping *
+        if(self.current_char=='/'):
+            self.advance()
+        else:
+            self.error()
 
     def number(self):
-        # returns an integer/float from text
-        number = ''
-        while self.currentChar is not None and self.currentChar.isdigit():
-            number = number + self.currentChar
+        """Return a (multidigit) integer or float consumed from the input."""
+        result = ''
+        while self.current_char is not None and self.current_char.isdigit():
+            result += self.current_char
             self.advance()
 
-        if self.currentChar == '.':
-            number = number + self.currentChar
+        if self.current_char == '.':
+            result += self.current_char
             self.advance()
 
-            while self.currentChar is not None and self.currentChar.isdigit():
-                number = number + self.currentChar
+            while (
+                self.current_char is not None and
+                self.current_char.isdigit()
+            ):
+                result += self.current_char
                 self.advance()
 
-            num_tok = toen.Token('FLOAT', float(number))
-
+            token = Token('REAL_CONST', float(result))
         else:
-            num_tok = toen.Token('INTEGER', int(number))
+            token = Token('INTEGER_CONST', int(result))
 
-        return num_tok
-    
+        return token
+    #NEW string function
     def string(self):
         string = ''
         while self.currentChar is not None and self.currentChar!='"':
             string += self.currentChar
             self.advance()
-        return string
-    
+        token =Token('STRING',str(string))
+        return token
+
     def _id(self):
-        # handles identifiers
+        """Handle identifiers and reserved keywords"""
         result = ''
-        while self.currentChar is not None and self.currentChar.isalnum():
-            result += self.currentChar
+        while self.current_char is not None and self.current_char.isalnum():
+            result += self.current_char
             self.advance()
 
-        tok = RESERVED_KEYWORDS.get(result, toen.Token(ID, result))
-        return tok
+        token = RESERVED_KEYWORDS.get(result.upper(), Token(ID, result))
+        return token
 
-    def getNextToken(self):
-        "Lexical Analyzer"
-        "Breaks the input into tokens"
+    def get_next_token(self):
+        """Lexical analyzer (also known as scanner or tokenizer)
+        This method is responsible for breaking a sentence
+        apart into tokens. One token at a time.
+        """
+        while self.current_char is not None:
 
-        while self.currentChar is not None:
-            if self.currentChar.isspace():
-                self.ignoreWhiteSpaces()
+            if self.current_char.isspace():
+                self.skip_whitespace()
                 continue
-            if self.peek(0) =='l' and self.peek(1)=='e' and self.peek(2)=='t' and self.peek(3)==' ':
-                for i in range(4):
-                    self.advance()
-                return toen.Token(LET,'let');
-            if self.peek(0) =='v' and self.peek(1)=='a' and self.peek(2)=='r' and self.peek(3)==' ':
-                for i in range(4):
-                    self.advance()
-                return toen.Token(VAR,'var');
-            if self.peek(0) =='i' and self.peek(1)=='f' and self.peek(2)==' ':
-                for i in range(3):
-                    self.advance()
-                return toen.Token(IF,'if');
-            if self.peek(0) =='e' and self.peek(1)=='l' and self.peek(2)=='s' and self.peek(3)=='e' and self.peek(4)==' ':
-                if self.peek(5)=='i' and self.peek(6)=='f' and self.peek(7)==' ':
-                    for i in range(8):
-                        self.advance()
-                    return toen.Token(ELSEIF,'else if')
-                for i in range(5):
-                    self.advance()
-                return toen.Token(ELSE,'else')
-            if self.peek(0) =='w' and self.peek(1)=='h' and self.peek(2)=='i' and self.peek(3)=='l' and self.peek(4)=='e' and self.peek(5)==' ':
-                for i in range(6):
-                    self.advance()
-                return toen.Token(WHILE,'while')
-            if self.currentChar.isdigit():
+
+            if self.current_char == '/' and self.peek()=='*':
+                self.advance()
+                self.advance()
+                self.skip_multi_line_comment()
+                continue
+            if self.current_char=='/' and self.peek()=='/':
+                self.advance()
+                self.advance()
+                self.skip_comment()
+                continue
+
+            if self.current_char.isalpha():
+                return self._id()
+
+            if self.current_char.isdigit():
                 return self.number()
-            if self.currentChar=='"':
+
+            if self.current_char=='{':
+                return Token(LCURL,'{')
+
+            if self.current_char=='}':
+                return Token(RCURL,'{') 
+
+            if self.current_char =='=':
+                self.advance()
+                return Token(ASSIGN, '=')
+
+            if self.current_char == ';':
+                self.advance()
+                return Token(SEMI, ';')
+
+            if self.current_char == ':':
+                self.advance()
+                return Token(COLON, ':')
+
+            if self.current_char == ',':
+                self.advance()
+                return Token(COMMA, ',')
+
+            if self.current_char == '+':
+                self.advance()
+                return Token(PLUS, '+')
+
+            if self.current_char == '-':
+                self.advance()
+                return Token(MINUS, '-')
+
+            if self.current_char == '*':
+                self.advance()
+                return Token(MUL, '*')
+
+            if self.current_char == '/':
+                self.advance()
+                return Token(FLOAT_DIV, '/')
+
+            if self.current_char == '(':
+                self.advance()
+                return Token(LPAREN, '(')
+
+            if self.current_char=='"':
                 self.advance()
                 return self.string()
-            if self.currentChar.isalpha():
-                return self._id()
-            if self.currentChar == '+':
+            if self.current_char == ')':
                 self.advance()
-                return toen.Token(PLUS, '+')
+                return Token(RPAREN, ')')
 
-            if self.currentChar == '-':
+            if self.current_char == '.':
                 self.advance()
-                return toen.Token(MINUS, '-')
+                return Token(DOT, '.')
 
-            if self.currentChar == '*':
-                self.advance()
-                return toen.Token(MULTIPLY, '*')
+            self.error()
 
-            if self.currentChar == '/':
-                self.advance()
-                if self.currentChar == '/':
-                    self.line+=1
-                    return toen.TOKEN(COMMENT, '//')
-                return toen.Token(DIVIDE, '/')
-
-            if self.currentChar == '%':
-                self.advance()
-                return toen.Token(MODULO, '%')
-
-            if self.currentChar == '(':
-                self.advance()
-                return toen.Token(LPAREN, '(')
-
-            if self.currentChar == ')':
-                self.advance()
-                return toen.Token(RPAREN, ')')
-
-            if self.currentChar == '{':
-                self.advance()
-                return toen.Token(LCURL, '{')
-
-            if self.currentChar == '}':
-                self.advance()
-                return toen.Token(RCURL, '}')
-
-            if self.currentChar == '=':
-                self.advance()
-                return toen.Token(EQUAL, '=')
-
-            if self.currentChar == ';':
-                self.advance()
-                return toen.Token(SEMICOLON, ';')
-
-            if self.currentChar == ',':
-                self.advance()
-                return toen.Token(COMMA, ',')
-
-            self.error(
-                message = "Invalid char {} at line {}".format(self.currentChar, self.line)
-            )
-
-        return toen.Token(EOF, None)
+        return Token(EOF, None)
