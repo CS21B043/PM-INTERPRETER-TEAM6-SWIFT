@@ -1,6 +1,6 @@
 import toen
 import lexer
-import parserprime
+import parser
 
 
 class NodeVisitor(object):
