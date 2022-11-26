@@ -1,0 +1,29 @@
+var NSShoursx= 3*3*(10-1) + 10/2 - 6;
+//This is to check functionality of single line comments
+let Greatdayvfdasg= 14;
+/*This is to check functionality_
+of multi line
+comments*/
+/*
+var SridharSirAge = 1000;
+var Unary = 1;
+let vscode = 0;
+var part = 2*(NSShours-71);
+part = part/2;
+part = part + 1;
+var iama =-++---+-8055;
+var StringsImplementation = "Success";
+var number1 = 8;
+var number2 = 9;
+var temp = number1;
+number1 = number2;
+number2 = temp;
+print("Hello World");
+print(14+3*2+4-2-1-1);
+print(number1+number2);
+print(-2);
+print(number1);
+var floatcheck = 2.5/1.1;
+var intcheck = 5/4;
+print(floatcheck);
+print(intcheck);*/
