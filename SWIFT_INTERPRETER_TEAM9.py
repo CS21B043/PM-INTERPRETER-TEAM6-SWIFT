@@ -100,6 +100,7 @@ class Lexer(object):
         self.text = text
         # self.pos is an index into self.text
         self.pos = 0
+        #character at the position self.text
         self.current_char = self.text[self.pos]
 
     def error(self):
