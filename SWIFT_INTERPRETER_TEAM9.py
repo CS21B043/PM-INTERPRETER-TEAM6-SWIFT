@@ -336,7 +336,7 @@ class UnaryOp(AST):
         self.token = self.op = op
         self.expr = expr
 
-#binary operations(Eg. addition etc..,)
+#binary operations(Eg. Addition(3+4) etc..,)
 class BinOp(AST):
     def __init__(self, left, op, right):
         self.left = left
@@ -659,9 +659,9 @@ class Parser(object):
             node = self.empty()
             node = print(self.current_token)
             self.eat(ID)
-        else:
+        else:'''
         self.eat(RPAREN)
-        return node'''
+        return node
             
     def assignment_statement(self):
         """
@@ -844,17 +844,17 @@ class Interpreter(NodeVisitor):
             result = node.value
         else:
             result = self.GLOBAL_SCOPE.get(node.value)
-        print(result)
+        print(result, end = " ")
 
     #visits BinOp and prints result
     def visit_PrintBinOp(self,node):
         result = Interpreter.visit_BinOp(self,node)
-        print(result)
+        print(result, end = " ")
 
     #visits UnaryOp and prints result
     def visit_PrintUnaryOp(self,node):
         result = Interpreter.visit_UnaryOp(self,node)
-        print(result)
+        print(result, end = " ")
 
     def visit_Num(self, node):
         #print(node.value)
@@ -872,13 +872,18 @@ class Interpreter(NodeVisitor):
             return +self.visit(node.expr)
         elif op == MINUS:
             return -self.visit(node.expr)
-        
-    #visits all the members of given list
+
+    #visits all the members of given list, and prints them in the same line(if the list is of Print objects)
     def visit_list(self,node):
+        pr = False
         for x in node:
-            #print(x)
+            #print(x.__class__.__name__)
             self.visit(x)
-            
+            if x.__class__.__name__ in ('Print', 'PrintBinOp', 'PrintUnaryOp'):
+                pr = True
+        if(pr):
+            print("")
+        
     #visits all the sentences in a compound statement
     def visit_Compound(self, node):
         for child in node.children:
