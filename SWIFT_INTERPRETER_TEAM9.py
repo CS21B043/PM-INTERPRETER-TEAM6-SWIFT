@@ -585,37 +585,48 @@ class Parser(object):
         #print(node.comparison.left, " ", node.comparison.op, " ", node.comparison.right)
         return node
 
-    def print_statement(self):
+   def print_statement(self):
         self.eat(LPAREN)
-        if self.current_token.type==STRING:
-            #print(self.current_token.value);
-            node = Print(self.current_token)
-            self.eat(STRING)
-        elif self.current_token.type in (PLUS,MINUS):
-            node = PrintUnaryOp(self.expr())
-        else:
-            varone = self.current_token
-            self.eat(self.current_token.type)
-            operator = self.current_token
-            if operator.type == RPAREN:
-                node = Print(varone)
+        node = []
+        while(self.current_token.type!=RPAREN):
+            if self.current_token.type==STRING:
+                #print(self.current_token.value);
+                node.append(Print(self.current_token))
+                self.eat(STRING)
+            elif self.current_token.type in (PLUS,MINUS):
+                node.append(PrintUnaryOp(self.expr()))
             else:
-                self.eat(operator.type)
-                if varone.type==ID:
-                    B = BinOp(left = var(varone), op = operator, right = self.expr())
+                varone = self.current_token
+                self.eat(self.current_token.type)
+                operator = self.current_token
+                if operator.type == RPAREN:
+                    node.append(Print(varone))
+                    self.eat(RPAREN)
+                    #print(node)
+                    return node
+                elif operator.type==COMMA:
+                    self.eat(COMMA)
+                    node.append(Print(varone))
                 else:
-                    B = BinOp(left = Num(varone), op = operator, right = self.expr())
-                node = PrintBinOp(B)
-                
+                    self.eat(operator.type)
+                    if varone.type==ID:
+                        B = BinOp(left = var(varone), op = operator, right = self.expr())
+                    else:
+                        B = BinOp(left = Num(varone), op = operator, right = self.expr())
+                    node.append(PrintBinOp(B))
+            #print(self.current_token, " one iteration over")
+            '''if(self.current_token.type!=RPAREN):
+                self.eat(COMMA)  
+                print("comma was eaten")  
             #print(self.expr().left, self.expr().op, self.expr().right)
-            '''elif self.current_token.type==ID:
+            elif self.current_token.type==ID:
             node = self.empty()
             node = print(self.current_token)
             self.eat(ID)
-        else:'''
+        else:
         self.eat(RPAREN)
-        return node
-
+        return node'''
+            
     def assignment_statement(self):
         """
         assignment_statement : variable ASSIGN expr
