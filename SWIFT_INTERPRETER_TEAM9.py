@@ -118,7 +118,7 @@ class Lexer(object):
         else:
             self.current_char = self.text[self.pos]
     
-     # gives the succeeding character to the character at self.pos
+    # gives the succeeding character to the character at self.pos
     def peek(self, n=1):
         peek_pos = self.pos + n
         if peek_pos > len(self.text) - 1:
@@ -224,10 +224,14 @@ class Lexer(object):
                 self.advance()
                 self.skip_comment()
                 continue
-
+            
+            #identifies the construct else if
             if self.current_char=='e' and self.peek()=='l' and self.peek(2)=='s' and self.peek(3)=='e' and self.peek(4)==' ' and self.peek(5)=='i' and self.peek(6)=='f':
                 self.advance(7)
                 return Token(ELSEIF, 'else if')
+            
+            ## identifies various characters ##
+            
             if self.current_char.isalpha():
                 return self._id()
 
@@ -319,23 +323,25 @@ class Lexer(object):
                 return Token(LESSERTHAN, '<')
 
             self.error()
+            #gives error if the character doesn't belong to any given token
 
         return Token(EOF, None)
 
 class AST(object):
     pass
 
+#unary operations(Eg. -(-3) )
 class UnaryOp(AST):
     def __init__(self, op, expr):
         self.token = self.op = op
         self.expr = expr
 
+#binary operations(Eg. addition etc..,)
 class BinOp(AST):
     def __init__(self, left, op, right):
         self.left = left
         self.token = self.op = op
         self.right = right
-
 
 class Num(AST):
     def __init__(self, token):
@@ -402,6 +408,7 @@ class Parser(object):
         self.lexer = lexer
         # set current token to the first token taken from the input
         self.current_token = self.lexer.get_next_token()
+        #the line we are parsing through
         self.line = 0;
 
     def error(self):
@@ -757,7 +764,8 @@ class NodeVisitor(object):
 
 
 class Interpreter(NodeVisitor):
-
+    
+    #dictionary
     GLOBAL_SCOPE = {}
 
     def __init__(self, parser):
@@ -803,7 +811,7 @@ class Interpreter(NodeVisitor):
             return self.visit(node.left) >= self.visit(node.right)
         elif node.op.type == LESR_OR_EQL:
             return self.visit(node.left) <= self.visit(node.right)
-
+    
     def visit_Print(self,node):
         if node.type in (STRING, INTEGER_CONST):
             result = node.value
