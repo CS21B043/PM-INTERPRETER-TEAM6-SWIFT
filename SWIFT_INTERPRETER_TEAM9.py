@@ -54,7 +54,9 @@ LESR_OR_EQL   ='<='
 
 class Token(object):
     def __init__(self, type, value):
+        #token type: INTEGER , PLUS etc..,
         self.type = type
+        #token value
         self.value = value
 
     def __str__(self):
@@ -100,7 +102,7 @@ class Lexer(object):
         self.text = text
         # self.pos is an index into self.text
         self.pos = 0
-        #character at the position self.text
+        #character at the position self.pos
         self.current_char = self.text[self.pos]
 
     def error(self):
@@ -110,7 +112,7 @@ class Lexer(object):
 
     def advance(self,n=1):
         """Advance the `pos` pointer and set the `current_char` variable."""
-        self.pos += n
+        self.pos += n #advances to the next position
         if self.pos > len(self.text) - 1:
             self.current_char = None  # Indicates end of input
         else:
@@ -194,6 +196,8 @@ class Lexer(object):
         This method is responsible for breaking a sentence
         apart into tokens. One token at a time.
         """
+        
+        #repeats until it reaches the end of input
         while self.current_char is not None:
             #print(self.current_char)
             if self.current_char.isspace():
