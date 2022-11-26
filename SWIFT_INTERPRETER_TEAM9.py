@@ -31,7 +31,7 @@ COLON         = 'COLON'
 COMMA         = 'COMMA'
 PROCEDURE     = 'PROCEDURE'
 EOF           = 'EOF'
-#NEW tokens
+#NEW
 SYMBOL_SLASH  ='SYMBOL_SLASH'
 LET           ='LET'
 IF            ='IF'
@@ -54,9 +54,7 @@ LESR_OR_EQL   ='<='
 
 class Token(object):
     def __init__(self, type, value):
-        #token types : INTEGER , PLUS etc..,
         self.type = type
-        #token value
         self.value = value
 
     def __str__(self):
@@ -105,6 +103,8 @@ class Lexer(object):
         self.current_char = self.text[self.pos]
 
     def error(self):
+        print(self.current_char)
+        print(self.get_next_token())
         raise Exception('Invalid character')
 
     def advance(self,n=1):
@@ -134,7 +134,7 @@ class Lexer(object):
         #print("skip comment after", self.current_char)
 #SKIPS MULTI LINE COMMENT USING /*
     def skip_multi_line_comment(self):
-        while self.current_char != '*' and self.current_char!=None:
+        while  (self.current_char != '*' or self.peek()!='/') and self.current_char!=None:
             self.advance()
         if(self.current_char==None):
             self.error() 
@@ -845,7 +845,7 @@ class Interpreter(NodeVisitor):
 
 
 def main():
-    file_name = 'fibonacci.swift'
+    file_name = 'testerlexer2.txt'
     with open(file_name) as f:
         text=f.read()
 
