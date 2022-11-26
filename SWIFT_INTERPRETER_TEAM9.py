@@ -620,10 +620,11 @@ class Parser(object):
         node = If(comparison,true_body,false_body)
         #print(node.comparison.left, " ", node.comparison.op, " ", node.comparison.right)
         return node
-
-   def print_statement(self):
+    
+    def print_statement(self):
         self.eat(LPAREN)
         node = []
+        print(self.current_token)
         while(self.current_token.type!=RPAREN):
             if self.current_token.type==STRING:
                 #print(self.current_token.value);
@@ -631,17 +632,20 @@ class Parser(object):
                 self.eat(STRING)
             elif self.current_token.type in (PLUS,MINUS):
                 node.append(PrintUnaryOp(self.expr()))
-            else:
+            elif self.current_token.type in (ID,INTEGER_CONST,REAL_CONST):
                 varone = self.current_token
                 self.eat(self.current_token.type)
+                '''if varone.type == COMMA:
+                    continue'''
                 operator = self.current_token
                 if operator.type == RPAREN:
                     node.append(Print(varone))
                     self.eat(RPAREN)
+                    print("rparen eaten")
                     #print(node)
                     return node
                 elif operator.type==COMMA:
-                    self.eat(COMMA)
+                    #self.eat(COMMA)
                     node.append(Print(varone))
                 else:
                     self.eat(operator.type)
@@ -651,11 +655,11 @@ class Parser(object):
                         B = BinOp(left = Num(varone), op = operator, right = self.expr())
                     node.append(PrintBinOp(B))
             #print(self.current_token, " one iteration over")
-            '''if(self.current_token.type!=RPAREN):
+            if(self.current_token.type!=RPAREN):
                 self.eat(COMMA)  
                 print("comma was eaten")  
             #print(self.expr().left, self.expr().op, self.expr().right)
-            elif self.current_token.type==ID:
+            '''elif self.current_token.type==ID:
             node = self.empty()
             node = print(self.current_token)
             self.eat(ID)
