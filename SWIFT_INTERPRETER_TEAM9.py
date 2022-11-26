@@ -624,7 +624,7 @@ class Parser(object):
     def print_statement(self):
         self.eat(LPAREN)
         node = []
-        print(self.current_token)
+        #print(self.current_token)
         while(self.current_token.type!=RPAREN):
             if self.current_token.type==STRING:
                 #print(self.current_token.value);
@@ -641,7 +641,7 @@ class Parser(object):
                 if operator.type == RPAREN:
                     node.append(Print(varone))
                     self.eat(RPAREN)
-                    print("rparen eaten")
+                    #print("rparen eaten")
                     #print(node)
                     return node
                 elif operator.type==COMMA:
@@ -657,7 +657,7 @@ class Parser(object):
             #print(self.current_token, " one iteration over")
             if(self.current_token.type!=RPAREN):
                 self.eat(COMMA)  
-                print("comma was eaten")  
+                #print("comma was eaten")  
             #print(self.expr().left, self.expr().op, self.expr().right)
             '''elif self.current_token.type==ID:
             node = self.empty()
