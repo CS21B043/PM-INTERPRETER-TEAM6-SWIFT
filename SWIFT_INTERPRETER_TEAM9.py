@@ -343,11 +343,13 @@ class BinOp(AST):
         self.token = self.op = op
         self.right = right
 
+#AST representation for numbers
 class Num(AST):
     def __init__(self, token):
         self.token = token
         self.value = token.value
 
+#AST representation for string 
 class String(AST):
     def __init__(self, token):
         self.token = token
@@ -366,12 +368,14 @@ class Assign(AST):
         self.token = self.op = op
         self.right = right
 
+#AST for if loop: condition(comparisons) , if{true_body} , else{false_body}
 class If(AST):
     def __init__(self, comparison, true_body, false_body):
         self.comparison = comparison
         self.true_body = true_body
         self.false_body = false_body
 
+#AST for while loop
 class While(AST):
     def __init__(self,comparison,body):
         self.comparison = comparison
@@ -383,6 +387,7 @@ class var(AST):
         self.token = token
         self.value = token.value
 
+#AST for print
 class Print(AST):
     def __init__(self,token):
         self.type = token.type
@@ -447,7 +452,7 @@ class Parser(object):
 
     
     
-    
+    #parses through a block {...}
     def block(self):
         """
         statement_list : statement
@@ -455,6 +460,7 @@ class Parser(object):
         """
         #print(self.current_token, " before eating lcurl")
         #self.lexer.skip_comment()
+        #'eats' left curl '{'
         self.eat(LCURL)
         #print(self.current_token, "after eating lcurl")
         '''if self.current_token in (print,let,var):
@@ -485,6 +491,7 @@ class Parser(object):
             return results'''
         #print(self.current_token)
         self.eat(RCURL)
+        #'eats' right curl '}'
         #print("rcurl removed")
         #self.lexer.skip_comment()
         return results
@@ -507,7 +514,8 @@ class Parser(object):
             results.append(self.statement())
 
         return results
-
+    
+    #identifies constructs and calls corresponding functions
     def statement(self):
         
         """
@@ -550,6 +558,9 @@ class Parser(object):
         #print("Line ", self.line)
         return node
 
+    #for 'while' loop
+    """while(comparison)
+            body"""
     def while_statement(self):
         self.eat(LPAREN)
         comparison = self.comparison()
@@ -560,6 +571,13 @@ class Parser(object):
         #print(node.comparison, " ", node.body)
         return node
 
+    #for 'if' loop
+    """if(comparison)
+          true_body
+       else if(comparison)
+          false_body
+       else
+          false_body"""
     def if_statement(self):
         self.eat(LPAREN)
         comparison = self.comparison()
@@ -583,6 +601,7 @@ class Parser(object):
         #print(node.false_body)
         return node
 
+    #defines else if
     def build_elseif_tree(self):
         self.eat(ELSEIF)
         self.eat(LPAREN)
@@ -674,6 +693,7 @@ class Parser(object):
         """An empty production"""
         return NoOp()
 
+    #defines comparison
     def comparison(self):
         node = self.expr()
         if self.current_token.type in (EQUAL, NOTEQUAL, GREATERTHAN, LESSERTHAN, GRTR_OR_EQL,LESR_OR_EQL):
@@ -686,6 +706,7 @@ class Parser(object):
         #print(node.left, " ", node.op, " ", node.right)
         return node
 
+    #checks token type and calls corresponding AST functions
     def factor(self):
         """factor : variable|Unary Op(Factor) |INTEGER| LPAREN expr RPAREN"""
         token = self.current_token
@@ -710,7 +731,7 @@ class Parser(object):
             return node
 
     def term(self):
-        """term : factor ((MUL | DIV) factor)*"""
+        """term : factor ((MUL | DIV) factor)"""
         node = self.factor()
         while self.current_token.type in (MUL, FLOAT_DIV, MODULO):
             token = self.current_token
@@ -771,6 +792,9 @@ class Interpreter(NodeVisitor):
     def __init__(self, parser):
         self.parser = parser
 
+    #interprets 'if' loop
+    #if comparison is true, then it visits true_body
+    #if comparison is false, then it visits false_body
     def visit_If(self, node):
         if self.visit(node.comparison)==True:
             #print("TRUE")
@@ -779,12 +803,15 @@ class Interpreter(NodeVisitor):
             #print("FALSE")
             self.visit(node.false_body)
 
+    #interprets 'while' loop
+    #visits the body until the comparison is true
     def visit_While(self, node):
         while self.visit(node.comparison):
             #print("TRUE")
             self.visit(node.body)
 
 
+    #identifies the operation type , performs the operation and returns the value
     def visit_BinOp(self, node):
         #print(node.left, " ", node.right)
         if node.op.type == PLUS:
@@ -819,10 +846,12 @@ class Interpreter(NodeVisitor):
             result = self.GLOBAL_SCOPE.get(node.value)
         print(result)
 
+    #visits BinOp and prints result
     def visit_PrintBinOp(self,node):
         result = Interpreter.visit_BinOp(self,node)
         print(result)
 
+    #visits UnaryOp and prints result
     def visit_PrintUnaryOp(self,node):
         result = Interpreter.visit_UnaryOp(self,node)
         print(result)
@@ -835,6 +864,7 @@ class Interpreter(NodeVisitor):
         #print(node)
         return node.value
 
+    #identifies unary operation and returns the value
     def visit_UnaryOp(self, node):
         #print(node)
         op = node.op.type
@@ -842,22 +872,26 @@ class Interpreter(NodeVisitor):
             return +self.visit(node.expr)
         elif op == MINUS:
             return -self.visit(node.expr)
-
+        
+    #visits all the members of given list
     def visit_list(self,node):
         for x in node:
             #print(x)
             self.visit(x)
-
+            
+    #visits all the sentences in a compound statement
     def visit_Compound(self, node):
         for child in node.children:
             #print(child)
             self.visit(child)
-
+            
+    #visits an assignment statement and assigns the value of the rhs to the variable in lhs
     def visit_Assign(self, node):
         #print(node.left, " ", node.right)
         var_name = node.left.value
         self.GLOBAL_SCOPE[var_name] = self.visit(node.right)
-
+        
+    #visits a variable and returns its value
     def visit_var(self, node):
         #print(node)
         var_name = node.value
@@ -867,9 +901,11 @@ class Interpreter(NodeVisitor):
         else:
             return val
 
+    #empty method 
     def visit_NoOp(self, node):
         pass
 
+    #visits the entire program 
     def interpret(self):
         tree = self.parser.parse()
         if tree is None:
@@ -883,13 +919,19 @@ def main():
     with open(file_name) as f:
         text=f.read()
 
+    #Initializes an object of class lexer with text as input
     lexer = Lexer(text)
+    #Initializes an object of class parser with lexer object as input
     parser = Parser(lexer)
+    #Initializes an object of class interpreter with the parser object as input
     interpreter = Interpreter(parser)
+    #interprets the given program
     result = interpreter.interpret()
     #print(result)
     #print(Lexer.current_token)
     #print(parser.parse())
+    
+    #prints the list of variables in the program and their values at the end of execution
     print(interpreter.GLOBAL_SCOPE)
 
 
