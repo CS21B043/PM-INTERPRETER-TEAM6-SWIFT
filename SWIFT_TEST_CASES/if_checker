@@ -1,0 +1,34 @@
+let Pakistan = 14;
+let India = 15+1+2;
+if(India<Pakistan)
+{
+    print("Pakistan has a higher number than India...");
+    print("GREATER WORKS FINE");
+    print("if WAS SUCCCESSFUL hahaha");
+}
+else if(India==15)
+{
+    print("15 is India's number, but we don't know Pakistan's, might be same as India's as well...");
+    print("== WORKS FINE");
+    print("ELSE if 1 WAS SUCCESSFUL hahaha");
+}
+else if(India==16)
+{
+    print("India's number is 16");
+    print("Else if 2 was successful hahaha");
+}
+else if(India==17)
+{
+    print("India's number is 17");
+    print("Else if 3 was successful hahaha");
+}
+else if(India==(3*3)+(2*2)+10/2)
+{
+    print("India's number is 18");
+    print("Else if 4 was successful hahaha");
+}
+else
+{
+    print("India's number is more than or equal to Pakistan's");
+    print("ELSE WAS SUCCESSFUL hahaha");
+}
