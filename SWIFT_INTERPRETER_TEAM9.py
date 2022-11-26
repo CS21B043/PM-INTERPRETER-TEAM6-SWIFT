@@ -31,7 +31,7 @@ COLON         = 'COLON'
 COMMA         = 'COMMA'
 PROCEDURE     = 'PROCEDURE'
 EOF           = 'EOF'
-#NEW
+#NEW tokens
 SYMBOL_SLASH  ='SYMBOL_SLASH'
 LET           ='LET'
 IF            ='IF'
@@ -54,7 +54,9 @@ LESR_OR_EQL   ='<='
 
 class Token(object):
     def __init__(self, type, value):
+        #token types : INTEGER , PLUS etc..,
         self.type = type
+        #token value
         self.value = value
 
     def __str__(self):
