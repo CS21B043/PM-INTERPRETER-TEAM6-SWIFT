@@ -117,25 +117,29 @@ class Lexer(object):
             self.current_char = None  # Indicates end of input
         else:
             self.current_char = self.text[self.pos]
-
+    
+     # gives the succeeding character to the character at self.pos
     def peek(self, n=1):
         peek_pos = self.pos + n
         if peek_pos > len(self.text) - 1:
             return None
         else:
             return self.text[peek_pos]
-
+    
+    # skips whitespaces(if the current_char is not end of file and if it is whitespace , self.pos is advanced until the current_char is not a whitespace)
     def skip_whitespace(self):
         while self.current_char is not None and self.current_char.isspace():
             self.advance()
-#SKIPS SINGLE LINE COMMENT USING //
+   
+    #SKIPS SINGLE LINE COMMENT USING //
     def skip_comment(self):
         while self.current_char != '\n':
             self.advance()
         #print("skip comment before", self.current_char)
         self.advance() 
         #print("skip comment after", self.current_char)
-#SKIPS MULTI LINE COMMENT USING /*
+    
+    #SKIPS MULTI LINE COMMENT USING /*
     def skip_multi_line_comment(self):
         while  (self.current_char != '*' or self.peek()!='/') and self.current_char!=None:
             self.advance()
@@ -154,7 +158,8 @@ class Lexer(object):
         while self.current_char is not None and self.current_char.isdigit():
             result += self.current_char
             self.advance()
-
+        
+        #if the number is float
         if self.current_char == '.':
             result += self.current_char
             self.advance()
@@ -171,6 +176,7 @@ class Lexer(object):
             token = Token('INTEGER_CONST', int(result))
 
         return token
+    
     #NEW string function
     def string(self):
         string = ''
@@ -200,15 +206,19 @@ class Lexer(object):
         #repeats until it reaches the end of input
         while self.current_char is not None:
             #print(self.current_char)
+            #skips whitespaces
             if self.current_char.isspace():
                 self.skip_whitespace()
                 continue
-
+            
+            #skips multiline comments
             if self.current_char == '/' and self.peek()=='*':
                 self.advance()
                 self.advance()
                 self.skip_multi_line_comment()
                 continue
+                
+            #skips comments
             if self.current_char=='/' and self.peek()=='/':
                 self.advance()
                 self.advance()
