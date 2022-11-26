@@ -6,10 +6,10 @@ let f_i_minus2 = f_zero;
 let f_i = f_i_minus1 + f_i_minus2;
 let n = 9;
 while(i<=n){
-    print("The Fibonacci number for n = ");
-    print(i);
+    print("The Fibonacci number for n = ", i, " is ", f_i);
+    /*print(i);
     print("is");
-    print(f_i);
+    print(f_i);*/
     f_i_minus2 = f_i_minus1;
     f_i_minus1 = f_i;
     f_i = f_i_minus1 + f_i_minus2;
