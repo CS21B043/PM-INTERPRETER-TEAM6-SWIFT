@@ -2,7 +2,7 @@ let a = 13;
 a = (a + 1)/2 + a;
 while(a>a%3)
 {
-    print(a);
-    print(a%3);
+    print("The value of a is: ", a, " whereas it's remainder with 3 is ", a%3);
+    //print(a%3);
     a = a - 1;
 }
