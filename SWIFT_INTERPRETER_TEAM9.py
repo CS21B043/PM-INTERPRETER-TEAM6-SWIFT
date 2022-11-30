@@ -21,27 +21,17 @@ LPAREN        = 'LPAREN'
 RPAREN        = 'RPAREN'
 ID            = 'ID'
 ASSIGN        = 'ASSIGN'
-BEGIN         = 'BEGIN'
-END           = 'END'
 SEMI          = 'SEMI'
-DOT           = 'DOT'
-PROGRAM       = 'PROGRAM'
 VAR           = 'VAR'
-COLON         = 'COLON'
 COMMA         = 'COMMA'
-PROCEDURE     = 'PROCEDURE'
 EOF           = 'EOF'
 #NEW
-SYMBOL_SLASH  ='SYMBOL_SLASH'
 LET           ='LET'
 IF            ='IF'
 ELSEIF        ='ELSEIF'
 ELSE          ='ELSE'
 WHILE         ='WHILE'
-SWITCH        ='SWITCH'
-CASE          ='CASE'
 STRING        ='STRING'
-STRING_       ='STRING_'
 LCURL         ='LCURL'
 RCURL         ='RCURL'
 PRINT         ='PRINT'
@@ -76,22 +66,16 @@ class Token(object):
 
 
 RESERVED_KEYWORDS = {
-    'PROGRAM': Token(PROGRAM, 'PROGRAM'),
     'VAR': Token(VAR, 'var'),
     'DIV': Token(FLOAT_DIV, 'DIV'),
     'INTEGER': Token(INTEGER, 'INTEGER'),
     'REAL': Token(REAL, 'REAL'),
-    'BEGIN': Token(BEGIN, 'BEGIN'),
-    'END': Token(END, 'END'),
-    'PROCEDURE': Token(PROCEDURE, 'PROCEDURE'),
     #NEW
     'LET': Token(LET,'let'),
     'IF': Token(IF,'if'),
     'ELSEIF': Token(ELSEIF, 'else if'),
     'ELSE': Token(ELSE,'else'),
     'WHILE': Token(WHILE,'while'),
-    'SWITCH': Token(SWITCH,'SWITCH'),
-    'CASE': Token(CASE,'CASE'),
     'STRING':Token(STRING,'STRING'),
     'PRINT':Token(PRINT,'print')
 }
@@ -261,9 +245,6 @@ class Lexer(object):
                 self.advance()
                 return Token(MODULO, '%')
 
-            if self.current_char == ':':
-                self.advance()
-                return Token(COLON, ':')
 
             if self.current_char == ',':
                 self.advance()
@@ -297,10 +278,6 @@ class Lexer(object):
             if self.current_char == ')':
                 self.advance()
                 return Token(RPAREN, ')')
-
-            if self.current_char == '.':
-                self.advance()
-                return Token(DOT, '.')
 
             if self.current_char == '!' and self.peek()=='=':
                 self.advance(2)
@@ -924,7 +901,7 @@ class Interpreter(NodeVisitor):
 
 
 def main():
-    file_name = 'testerlexer2.txt'
+    file_name = 'operator_checker.txt'
     with open(file_name) as f:
         text=f.read()
 
