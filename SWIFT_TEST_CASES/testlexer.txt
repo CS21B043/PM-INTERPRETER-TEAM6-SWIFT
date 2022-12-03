@@ -4,7 +4,6 @@ let Greatday = 14;
 /*This is to check functionality_
 of multi line
 comments*/
-var SridharSirAge = 1000;
 var Unary = 1;
 let vscode = 0;
 var part = 2*(NSShours-71);
