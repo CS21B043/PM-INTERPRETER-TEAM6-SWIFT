@@ -410,13 +410,13 @@ class Parser(object):
             self.error()
 
     def program(self):
-        """program : compound_statement DOT"""
+        """program : compound_statement"""
         node = self.compound_statement()
         return node
 
     def compound_statement(self):
         """
-        compound_statement: { statement_list }
+        compound_statement: statement_list
         """
         nodes = self.statement_list()
 
@@ -432,8 +432,7 @@ class Parser(object):
     #parses through a block {...}
     def block(self):
         """
-        statement_list : statement
-                       | statement SEMI statement_list
+        block : LCURL statement| statement (LET assignment_statement SEMI| VAR assignment_statement SEMI| assignment_statement SEMI| print_statement SEMI)* RCURL
         """
         #print(self.current_token, " before eating lcurl")
         #self.lexer.skip_comment()
@@ -476,7 +475,7 @@ class Parser(object):
     def statement_list(self):
         """
         statement_list : statement
-                       | statement SEMI statement_list
+                       | statement statement_list
         """
 
         node = self.statement()
@@ -496,8 +495,12 @@ class Parser(object):
     def statement(self):
         
         """
-        statement : compound_statement
-                  | assignment_statement
+        statement : LET assignment_statement SEMI
+                  | VAR assignment_statement SEMI
+                  | assignment_statement SEMI
+                  | print_statement SEMI
+                  | IF if_statement
+                  | WHILE while_statement
                   | empty
         """
         self.line+=1
@@ -549,12 +552,16 @@ class Parser(object):
         return node
 
     #for 'if' loop
-    """if(comparison)
+    """if(comparison){
           true_body
-       else if(comparison)
-          false_body
-       else
-          false_body"""
+        }
+       else if(comparison){
+          false_body_1
+        }
+        ...
+       else{
+          false_body_n
+        }"""
     def if_statement(self):
         self.eat(LPAREN)
         comparison = self.comparison()
@@ -599,6 +606,7 @@ class Parser(object):
         return node
     
     def print_statement(self):
+        #print_statement = LPAREN printable (,printable)* RPAREN
         self.eat(LPAREN)
         node = []
         #print(self.current_token)
@@ -646,7 +654,7 @@ class Parser(object):
             
     def assignment_statement(self):
         """
-        assignment_statement : variable ASSIGN expr
+        assignment_statement : variable ASSIGN (string|expr)
         """
         #print(self.current_token)
         left = self.variable()
@@ -674,7 +682,7 @@ class Parser(object):
         """An empty production"""
         return NoOp()
 
-    #defines comparison
+    #comparison : expr (>|<|>=|<=|==|!=) expr 
     def comparison(self):
         node = self.expr()
         if self.current_token.type in (EQUAL, NOTEQUAL, GREATERTHAN, LESSERTHAN, GRTR_OR_EQL,LESR_OR_EQL):
@@ -689,7 +697,7 @@ class Parser(object):
 
     #checks token type and calls corresponding AST functions
     def factor(self):
-        """factor : variable|Unary Op(Factor) |INTEGER| LPAREN expr RPAREN"""
+        """factor : variable|Unary Op(Factor) |INTEGER| FLOAT| LPAREN expr RPAREN"""
         token = self.current_token
         if token.type == PLUS:
             self.eat(PLUS)
@@ -712,7 +720,7 @@ class Parser(object):
             return node
 
     def term(self):
-        """term : factor ((MUL | DIV) factor)"""
+        """term : factor ((MUL | DIV | MODULO) factor)"""
         node = self.factor()
         while self.current_token.type in (MUL, FLOAT_DIV, MODULO):
             token = self.current_token
@@ -724,7 +732,7 @@ class Parser(object):
     def expr(self):
         """
         expr   : term ((PLUS | MINUS) term)*
-        term   : factor ((MUL | DIV) factor)*
+        term   : factor ((MUL | DIV| MODULO) factor)*
         factor : INTEGER | LPAREN expr RPAREN
         """
         node = self.term()
