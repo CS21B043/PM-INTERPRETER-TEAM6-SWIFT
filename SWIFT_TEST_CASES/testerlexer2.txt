@@ -5,7 +5,7 @@ let Greatdayvfdasg= 14;
 of multi line
 comments*/
 /*
-var SridharSirAge = 1000;
+var CourAge = 1000;
 var Unary = 1;
 let vscode = 0;
 var part = 2*(NSShours-71);
